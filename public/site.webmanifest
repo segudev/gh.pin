@@ -1,0 +1,13 @@
+{
+  "name": "gh.pin",
+  "short_name": "gh.pin",
+  "description": "A personal Pinterest-style wall of pinned GitHub repos with at-a-glance health signals. All data stays in your browser.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#f6f7f9",
+  "background_color": "#f6f7f9",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

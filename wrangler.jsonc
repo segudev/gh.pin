@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/wrangler.json",
+  "name": "gh-pin",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [{ "pattern": "pin.heresy.wtf", "custom_domain": true }]
+}

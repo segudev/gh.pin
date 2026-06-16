@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- white sticker backing -->
+  <circle cx="256" cy="262" r="232" fill="#ffffff"/>
+  <!-- purple GitHub mark (official path: circle with octocat cutout) -->
+  <g transform="translate(64,70) scale(24)">
+    <path fill="#a9a2e6" fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+  </g>
+  <!-- red pushpin, tilted -->
+  <g transform="translate(330,128) rotate(16)">
+    <!-- needle -->
+    <polygon points="-5,30 5,30 1,100 -1,100" fill="#3c3c40"/>
+    <!-- base flange -->
+    <ellipse cx="0" cy="26" rx="42" ry="15" fill="#e8424e"/>
+    <ellipse cx="0" cy="22" rx="42" ry="15" fill="#f4565e"/>
+    <!-- stem -->
+    <path d="M-16,-50 h32 l6,72 h-44 z" fill="#ef4d58"/>
+    <!-- head cap -->
+    <path d="M-44,-86 a44,16 0 0 1 88 0 v26 a44,16 0 0 1 -88 0 z" fill="#e8424e"/>
+    <ellipse cx="0" cy="-86" rx="44" ry="16" fill="#f8636e"/>
+    <!-- highlight -->
+    <ellipse cx="-14" cy="-89" rx="16" ry="6" fill="#fb8a92"/>
+  </g>
+</svg>
