@@ -6,6 +6,9 @@ export function initDrawer(): void {
   document.getElementById('sbClose')?.addEventListener('click', () => {
     setState({ selectedId: null });
   });
+  document.getElementById('sbHint')?.addEventListener('click', () => {
+    collapseSidebar();
+  });
 }
 
 export function collapseSidebar(): void {

@@ -56,18 +56,19 @@
   </defs>
 </svg>
 
-<div class="layout" id="layout">
+<div class="layout collapsed" id="layout">
   <main class="grid-wrap">
+    <h1 class="sr-only">gh.pin</h1>
     <div class="filter" id="filter"></div>
     <div class="grid" id="grid">
       <div class="card add-tile" id="addTile">
         <form class="add" id="addForm">
-          <input id="addInput" placeholder="paste a github url or owner/repo" autocomplete="off" spellcheck="false">
+          <input id="addInput" aria-label="add a pin: paste a github url or owner/repo" placeholder="paste a github url or owner/repo" autocomplete="off" spellcheck="false">
         </form>
       </div>
     </div>
     <div class="empty-state" id="emptyState" hidden>
-      <img class="logo" src="/favicon-128.png" alt="" width="56" height="56">
+      <img class="logo" src="/logo.webp" alt="gh.pin logo" width="240" height="240">
       <div class="brand">gh.pin</div>
       <p>paste a github url anywhere (<kbd>cmd</kbd>+<kbd>v</kbd>) and it lands as a tile</p>
     </div>
@@ -75,7 +76,7 @@
   </main>
 
   <aside class="sidebar" id="sidebar">
-    <span class="sb-hint"><kbd>esc</kbd></span>
+    <button class="sb-hint" id="sbHint" type="button" aria-label="collapse panel"><kbd>esc</kbd></button>
     <button class="sb-close" id="sbClose" type="button" aria-label="close panel">
       <svg width="14" height="14"><use href="#i-x"/></svg>
     </button>

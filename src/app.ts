@@ -1,11 +1,11 @@
 import { deletePin, listPins } from './db';
 import { setState, subscribe, getState } from './state';
 import { render } from './render';
-import { initAddPin, initGlobalPaste, openSettingsDialog } from './ui/addPin';
+import { initAddPin, initGlobalPaste, openSettingsDialog, maybePromptForToken } from './ui/addPin';
 import { initFilter } from './ui/filter';
 import { initDrawer, selectPin, collapseSidebar } from './ui/drawer';
 import { initDrag } from './ui/drag';
-import { onRateChange } from './github';
+import { onRateChange, RateLimitError } from './github';
 import { refreshPin, loadOrFetchReadme } from './snapshots';
 
 async function boot(): Promise<void> {
@@ -163,6 +163,12 @@ async function refreshStale(): Promise<void> {
     try {
       await refreshPin(pin);
     } catch (err) {
+      if (err instanceof RateLimitError) {
+        // every remaining call would 403 until reset; stop and offer a token.
+        // if one is added, restart so the still-stale pins refresh now.
+        if (await maybePromptForToken(err)) return refreshStale();
+        break;
+      }
       console.error(`refresh ${pin.id}`, err);
     }
   }

@@ -8,6 +8,24 @@ export interface RateLimit {
   reset: number;
 }
 
+// Thrown when GitHub rejects a request because the rate limit is exhausted,
+// so callers can tell this apart from a real fetch failure and offer a token.
+export class RateLimitError extends Error {
+  readonly reset: number; // ms epoch when the limit resets
+  readonly hasToken: boolean;
+  constructor(reset: number, hasToken: boolean) {
+    const at = reset ? new Date(reset).toLocaleTimeString() : 'soon';
+    super(
+      hasToken
+        ? `GitHub API rate limit exceeded. Resets at ${at}.`
+        : `GitHub API rate limit exceeded (60/hr unauthenticated). Add a token to raise it. Resets at ${at}.`,
+    );
+    this.name = 'RateLimitError';
+    this.reset = reset;
+    this.hasToken = hasToken;
+  }
+}
+
 let lastRate: RateLimit | null = null;
 const rateListeners = new Set<(r: RateLimit) => void>();
 
@@ -37,6 +55,17 @@ async function gh(path: string, init: RequestInit = {}): Promise<Response> {
   if (limit) {
     lastRate = { limit, remaining, reset };
     rateListeners.forEach((fn) => fn(lastRate!));
+  }
+
+  // A 403/429 with the remaining counter at zero is the rate limit, not a
+  // permissions error. Throw a typed error so the UI prompts for a token
+  // instead of surfacing a generic "owner/repo: 403".
+  if (
+    (res.status === 403 || res.status === 429) &&
+    res.headers.has('x-ratelimit-remaining') &&
+    remaining === 0
+  ) {
+    throw new RateLimitError(reset, Boolean(token));
   }
 
   return res;

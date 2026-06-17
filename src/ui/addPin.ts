@@ -1,9 +1,15 @@
 import { db, listPins, getSetting, setSetting } from '../db';
 import { parseRepoUrl, repoId } from '../lib/parseRepoUrl';
 import { refreshPin, loadOrFetchReadme } from '../snapshots';
+import { RateLimitError } from '../github';
 import { setState, getState } from '../state';
 
 const TOKEN_THRESHOLD = 10;
+
+const PROMPT_PINS =
+  'You have 11 or more pinned repos. The unauthenticated GitHub API limit (60/hr) will not be enough. Paste a personal access token (no scopes required for public repos). The token stays in your browser.';
+const PROMPT_RATELIMIT =
+  'GitHub rate limit hit (60/hr unauthenticated). Paste a personal access token to raise it to 5,000/hr (no scopes required for public repos). The token stays in your browser.';
 
 export type AddResult = 'added' | 'duplicate' | 'invalid';
 
@@ -22,18 +28,18 @@ export async function addFromText(value: string): Promise<{ result: AddResult; i
   if (pinCount >= TOKEN_THRESHOLD) {
     const token = await getSetting<string>('githubToken');
     if (!token) {
-      const entered = await promptForToken();
+      const entered = await promptForToken(PROMPT_PINS);
       if (entered) await setSetting('githubToken', entered);
     }
   }
 
-  const maxOrder = (await listPins()).reduce((m, p) => Math.max(m, p.order ?? 0), 0);
+  const minOrder = (await listPins()).reduce((m, p) => Math.min(m, p.order ?? 0), 0);
   await db.pins.put({
     id,
     owner: ref.owner,
     repo: ref.repo,
     addedAt: Date.now(),
-    order: maxOrder + 1,
+    order: minOrder - 1,
     tags: [],
   });
 
@@ -46,7 +52,15 @@ export async function addFromText(value: string): Promise<{ result: AddResult; i
       await loadOrFetchReadme((await db.pins.get(id))!).catch(() => null);
       setState({ pins: await listPins(), tick: getState().tick + 1 });
     })
-    .catch((err) => console.error('refresh failed', err));
+    .catch(async (err) => {
+      console.error('refresh failed', err);
+      // a token added here lets the just-pinned repo refresh immediately
+      if (await maybePromptForToken(err)) {
+        await refreshPin((await db.pins.get(id))!, { force: true }).catch(() => {});
+        await loadOrFetchReadme((await db.pins.get(id))!).catch(() => null);
+        setState({ pins: await listPins(), tick: getState().tick + 1 });
+      }
+    });
 
   return { result: 'added', id };
 }
@@ -113,14 +127,42 @@ function flash(msg: string, bad = false): void {
   flashTimer = window.setTimeout(() => el!.classList.remove('on'), 1400);
 }
 
-function promptForToken(): Promise<string | null> {
+// Fires the token dialog in response to a rate-limit error so the user sees a
+// fix instead of a stalled grid. Returns true when a new token was saved (the
+// caller can then retry). Guarded so parallel failures open only one dialog.
+let tokenPromptOpen = false;
+export async function maybePromptForToken(err: unknown): Promise<boolean> {
+  if (!(err instanceof RateLimitError)) return false;
+  // already authenticated; a token cannot raise the limit further, just inform
+  if (err.hasToken) {
+    flash(err.message, true);
+    return false;
+  }
+  if (tokenPromptOpen) return false;
+  tokenPromptOpen = true;
+  try {
+    if (await getSetting<string>('githubToken')) return false;
+    const entered = await promptForToken(PROMPT_RATELIMIT);
+    if (!entered) {
+      flash('rate limited - add a token in settings', true);
+      return false;
+    }
+    await setSetting('githubToken', entered);
+    flash('token saved');
+    return true;
+  } finally {
+    tokenPromptOpen = false;
+  }
+}
+
+function promptForToken(message: string): Promise<string | null> {
   return new Promise((resolve) => {
     const bg = document.createElement('div');
     bg.className = 'dialog-bg on';
     bg.innerHTML = `
       <div class="dialog">
         <h2>github token</h2>
-        <p>You have 11 or more pinned repos. The unauthenticated GitHub API limit (60/hr) will not be enough. Paste a personal access token (no scopes required for public repos). The token stays in your browser.</p>
+        <p>${message}</p>
         <input type="password" id="patInput" placeholder="ghp_...">
         <div class="row-actions">
           <button class="muted" data-cancel>skip</button>
