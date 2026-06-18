@@ -80,21 +80,19 @@ a { color: inherit; text-decoration: none; }
 /* ---------- empty state ---------- */
 .empty-state {
   text-align: center;
-  padding: 96px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 60vh;
 }
 .empty-state[hidden] { display: none; }
 .empty-state .logo {
   display: block;
-  width: clamp(220px, 32vw, 320px);
+  width: clamp(260px, 30vw, 380px);
   height: auto;
-  margin: 0 auto 24px;
+  margin: 0 auto 28px;
+  filter: drop-shadow(0 20px 32px rgba(20, 22, 30, 0.16)) drop-shadow(0 4px 10px rgba(20, 22, 30, 0.1));
 }
-.empty-state .brand { font-size: 24px; margin-bottom: 10px; }
+.empty-state .brand { font-size: 26px; margin-bottom: 8px; }
 .empty-state p { margin: 0; font-size: 12.5px; color: var(--ink-2); }
 .empty-state kbd {
   font-family: var(--mono); font-size: 10px;
@@ -133,6 +131,17 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- grid ---------- */
 .grid-wrap { padding: 28px; min-width: 0; }
+.grid-wrap.is-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 32px;
+}
+.grid-wrap.is-empty .grid { order: 2; columns: unset; column-gap: 0; width: 320px; }
+.grid-wrap.is-empty .add-tile { width: 100%; margin-bottom: 0; }
+.grid-wrap.is-empty .empty-state { order: 1; padding: 0; min-height: 0; }
 .grid {
   columns: 4 240px;
   column-gap: 20px;

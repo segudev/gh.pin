@@ -46,6 +46,7 @@ export async function render(state: AppState): Promise<void> {
   applySelection(state);
   renderFooter(state);
   document.getElementById('emptyState')!.hidden = state.pins.length > 0;
+  document.querySelector('.grid-wrap')!.classList.toggle('is-empty', state.pins.length === 0);
 
   const sbKey = `${state.selectedId}|${state.sbView}|${state.tick}`;
   if (sbKey !== lastSidebarKey) {
