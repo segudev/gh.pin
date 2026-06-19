@@ -430,7 +430,6 @@ function renderFooter(state: AppState): void {
   const footer = document.getElementById('footer')!;
   const parts: string[] = [];
   parts.push(`${state.pins.length} pins`);
-  parts.push('local browser');
   if (state.pins.length > 0) parts.push('drag to rearrange');
   if (state.rateRemaining !== null && state.rateLimit !== null) {
     parts.push(`api ${state.rateRemaining}/${state.rateLimit}`);
