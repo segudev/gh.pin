@@ -1,0 +1,41 @@
+applications:
+  site:
+    # Static Vite SPA: build with Node, serve dist/ as static files.
+    type: "nodejs:24"
+
+    # Build tools (vite, typescript) live in devDependencies, so a full
+    # `npm ci` is required here — `--omit=dev` would break the build.
+    build:
+      flavor: none
+
+    hooks:
+      build: |
+        set -ex
+        npm ci
+        npm run build
+
+    web:
+      # No server process; the static files are served directly by the router.
+      commands:
+        start: sleep infinity
+
+      locations:
+        "/":
+          root: dist
+          index: [index.html]
+          scripts: false
+          # Short cache so index.html and sw.js pick up new deploys quickly.
+          expires: 1h
+          rules:
+            # Vite emits content-hashed filenames under /assets/ — safe to
+            # cache for a long time.
+            ^/assets/:
+              expires: 4w
+
+routes:
+  "https://{default}/":
+    type: upstream
+    upstream: "site:http"
+  "https://www.{default}/":
+    type: redirect
+    to: "https://{default}/"
